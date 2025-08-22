@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Analysis</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9fafb;
+      margin: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2563eb;
+      margin-bottom: 15px;
+    }
+    select {
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📊 Expense Analysis</h2>
+    <select id="view">
+      <option value="perDay">Daily</option>
+      <option value="perWeek">Weekly</option>
+      <option value="perMonth">Monthly</option>
+      <option value="perYear">Yearly</option>
+    </select>
+    <canvas id="expenseChart"></canvas>
+  </div>
+
+  <script>
+    let chart;
+    const ctx = document.getElementById("expenseChart").getContext("2d");
+
+    async function fetchAnalytics(view = "perDay") {
+      try {
+        // 🚨 IMPORTANT: change this URL after you deploy Flask backend (not localhost)
+        let res = await fetch("http://localhost:5000/analytics");
+        let analytics = await res.json();
+
+        let labels = analytics[view].map(i => i.day || i.week || i.month || i.year);
+        let values = analytics[view].map(i => i.total);
+
+        if (chart) chart.destroy(); // clear old chart
+
+        chart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Total Expense (₹)",
+              data: values,
+              borderColor: "#2563eb",
+              backgroundColor: "rgba(37,99,235,0.3)",
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: "top" },
+              title: { display: true, text: "Expense Analysis" }
+            }
+          }
+        });
+
+      } catch (err) {
+        console.error("Error fetching analytics:", err);
+      }
+    }
+
+    document.getElementById("view").addEventListener("change", (e) => {
+      fetchAnalytics(e.target.value);
+    });
+
+    // Initial load
+    fetchAnalytics("perDay");
+  </script>
+</body>
+</html>
