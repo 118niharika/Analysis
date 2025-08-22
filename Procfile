@@ -1,1 +1,2 @@
-web: gunicorn chart:app
+web: python chart.py
+
