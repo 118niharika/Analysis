@@ -1,6 +1,6 @@
 import React from "react";
-import Voice from "./components/Voice";
-import Chart from "./components/Chart";
+// import Voice from "./components/Voice";
+import Chart from "./docs/index.html";
 
 function App() {
   return (
@@ -12,3 +12,4 @@ function App() {
 }
 
 export default App;
+
